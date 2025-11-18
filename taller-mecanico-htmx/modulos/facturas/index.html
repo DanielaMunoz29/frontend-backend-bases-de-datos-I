@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>MotorPlus · Facturas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#22c55e",
+            secondary: "#0ea5e9",
+            accent: "#f97316",
+            deep: "#0f172a",
+          },
+          boxShadow: {
+            neon: "0 0 25px rgba(56, 189, 248, 0.8)",
+            neonGreen: "0 0 25px rgba(34, 197, 94, 0.7)",
+            neonOrange: "0 0 35px rgba(249, 115, 22, 0.9)",
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    body {
+      background: linear-gradient(135deg, #020617, #0f172a, #1e3a8a, #0f766e, #4c1d95);
+      background-size: 350% 350%;
+      animation: gradientMove 18s ease infinite;
+    }
+    @keyframes gradientMove {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="fixed left-0 top-0 h-screen w-64 backdrop-blur-xl bg-white/5 border-r border-white/10 p-6 z-50">
+    <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 bg-gradient-to-br from-secondary to-primary rounded-lg shadow-neonGreen flex items-center justify-center overflow-hidden">
+            <img
+                src="../../static/img/IMG_1332.jpeg"
+                alt="Logo MotorPlus"
+                class="w-full h-full object-cover"
+            />
+        </div>
+        <h1 class="text-xl font-bold text-white">MotorPlus</h1>
+    </div>
+
+    <nav class="space-y-2">
+      <a href="../../dashboard/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Dashboard
+      </a>
+      <a href="../clientes/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        Clientes
+      </a>
+      <a href="../vehiculos/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+        Vehículos
+      </a>
+      <a href="../servicios/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Servicios
+      </a>
+      <a href="../repuestos/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        Repuestos
+      </a>
+      <a href="../mecanicos/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        Mecánicos
+      </a>
+      <a href="../ordenes/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+        Órdenes
+      </a>
+      <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-primary/20 to-secondary/20 text-white border border-white/10 shadow-neonGreen">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+        Facturas
+      </a>
+    </nav>
+
+    <div class="absolute bottom-6 left-6 right-6">
+      <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-400 hover:bg-rose-500/10 transition-all border border-rose-500/20">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        Cerrar Sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="ml-64 p-8">
+    <!-- HEADER -->
+    <header class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-3xl font-bold text-white mb-2">Facturas</h2>
+        <p class="text-slate-400">Gestiona la facturación del taller</p>
+      </div>
+      <div class="flex items-center gap-4">
+        <button onclick="openCreateModal()" class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-emerald-600 text-white rounded-xl shadow-neonGreen hover:scale-105 transition-transform font-semibold">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Nueva Factura
+        </button>
+      </div>
+    </header>
+
+    <!-- STATS CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-neon">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-1" id="total-facturas">0</h3>
+        <p class="text-slate-400 text-sm">Total Facturas</p>
+      </div>
+
+      <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-neonGreen">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-primary to-emerald-600 rounded-xl flex items-center justify-center shadow-neonGreen">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-1" id="total-facturado">$0</h3>
+        <p class="text-slate-400 text-sm">Total Facturado</p>
+      </div>
+
+      <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-neon">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-1" id="facturas-pendientes">$0</h3>
+        <p class="text-slate-400 text-sm">Por Cobrar</p>
+      </div>
+
+      <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-neon">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-1" id="facturas-pagadas">$0</h3>
+        <p class="text-slate-400 text-sm">Pagadas</p>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
+      <div class="flex flex-wrap items-center gap-4">
+        <div class="flex-1 min-w-[300px]">
+          <div class="relative">
+            <input type="text" id="searchInput" placeholder="Buscar por número de factura u orden..." 
+              class="w-full px-4 py-3 pl-12 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-primary transition-colors">
+            <svg class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="filterByStatus('all')" class="filter-btn active px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors text-sm font-medium">
+            Todas
+          </button>
+          <button onclick="filterByStatus('Pendiente')" class="filter-btn px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors text-sm font-medium">
+            Pendientes
+          </button>
+          <button onclick="filterByStatus('Pagado')" class="filter-btn px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors text-sm font-medium">
+            Pagadas
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FACTURAS LIST -->
+    <div id="facturasList" class="grid grid-cols-1 gap-4">
+      <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
+        <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-slate-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        </div>
+        <p class="text-slate-400">Cargando facturas...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL: CREAR FACTURA -->
+  <div id="createModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-2xl font-bold text-white">Nueva Factura</h3>
+        <button onclick="closeCreateModal()" class="text-slate-400 hover:text-white transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form onsubmit="crearFactura(event)" class="space-y-6">
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-2">Orden de Trabajo *</label>
+          <select id="idOrdenTrabajo" required class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary">
+            <option value="">Seleccione una orden</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Fecha de Emisión *</label>
+            <input type="date" id="fechaEmision" required class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Estado de Pago *</label>
+            <select id="idEstadoPago" required class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary">
+              <!-- Los estados se cargarán dinámicamente desde el backend -->
+            </select>
+          </div>
+        </div>
+
+        <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-6">
+          <h4 class="text-lg font-bold text-white mb-4">Desglose de Costos</h4>
+          
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-medium text-slate-300">Subtotal Servicios</label>
+              <div class="flex items-center gap-2">
+                <span class="text-slate-400 text-sm">$</span>
+                <input type="number" id="subtotalServicios" step="0.01" min="0" value="0" required 
+                  onchange="calcularTotal()"
+                  class="w-32 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-right focus:outline-none focus:border-primary">
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-medium text-slate-300">Subtotal Repuestos</label>
+              <div class="flex items-center gap-2">
+                <span class="text-slate-400 text-sm">$</span>
+                <input type="number" id="subtotalRepuestos" step="0.01" min="0" value="0" required 
+                  onchange="calcularTotal()"
+                  class="w-32 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-right focus:outline-none focus:border-primary">
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-medium text-slate-300">Impuestos (IVA 19%)</label>
+              <div class="flex items-center gap-2">
+                <span class="text-slate-400 text-sm">$</span>
+                <input type="number" id="impuestosTotal" step="0.01" min="0" value="0" required 
+                  onchange="calcularTotal()"
+                  class="w-32 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-right focus:outline-none focus:border-primary">
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-medium text-slate-300">Descuentos</label>
+              <div class="flex items-center gap-2">
+                <span class="text-slate-400 text-sm">$</span>
+                <input type="number" id="descuentoTotal" step="0.01" min="0" value="0" required 
+                  onchange="calcularTotal()"
+                  class="w-32 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-right focus:outline-none focus:border-primary">
+              </div>
+            </div>
+
+            <div class="h-px bg-white/10 my-4"></div>
+
+            <div class="flex items-center justify-between">
+              <label class="text-lg font-bold text-white">TOTAL A PAGAR</label>
+              <div class="text-2xl font-bold text-primary" id="totalDisplay">$0.00</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <button type="button" onclick="closeCreateModal()" class="flex-1 px-6 py-3 bg-white/5 text-white rounded-xl hover:bg-white/10 transition-colors font-semibold">
+            Cancelar
+          </button>
+          <button type="submit" class="flex-1 px-6 py-3 bg-gradient-to-r from-primary to-emerald-600 text-white rounded-xl shadow-neonGreen hover:scale-105 transition-transform font-semibold">
+            Generar Factura
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: DETALLE FACTURA -->
+  <div id="detailModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-2xl font-bold text-white">Detalle de Factura</h3>
+        <button onclick="closeDetailModal()" class="text-slate-400 hover:text-white transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div id="facturaDetail" class="space-y-6">
+        <!-- Detail content will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:8080/api';
+    
+    let facturas = [];
+    let facturasOriginales = [];
+    let ordenes = [];
+    let estadosPago = {};  // Se cargará dinámicamente desde el backend
+    let estadosPagoArray = [];  // Array con los estados disponibles
+    let currentFilter = 'all';
+
+    // Cargar datos iniciales
+    async function loadData() {
+      try {
+        // Cargar estados de pago primero
+        const estadosRes = await fetch(`${API_BASE}/estados-pago`);
+        estadosPagoArray = await estadosRes.json();
+        
+        console.log('Estados de pago recibidos del backend:', estadosPagoArray);
+        
+        // Crear mapeo de estados de pago (manejar mayúsculas y minúsculas)
+        estadosPago = {};
+        estadosPagoArray.forEach(estado => {
+          // Manejar tanto minúsculas como mayúsculas (Oracle devuelve en MAYÚSCULAS por defecto)
+          const idEstado = estado.id_estado_pago || estado.ID_ESTADO_PAGO;
+          const nombreEstado = estado.nombre_estado || estado.NOMBRE_ESTADO;
+          estadosPago[idEstado] = nombreEstado;
+        });
+        
+        console.log('Estados de pago mapeados:', estadosPago);
+        
+        // Cargar facturas
+        const facturasRes = await fetch(`${API_BASE}/facturas`);
+        facturas = await facturasRes.json();
+        facturasOriginales = [...facturas];
+        
+        // Cargar órdenes para el select
+        const ordenesRes = await fetch(`${API_BASE}/ordenes`);
+        ordenes = await ordenesRes.json();
+        
+        populateSelects();
+        updateStats();
+        renderFacturas(facturas);
+      } catch (error) {
+        console.error('Error cargando datos:', error);
+        showNotification('Error al cargar las facturas', 'error');
+      }
+    }
+
+    function populateSelects() {
+      // Llenar select de órdenes de trabajo
+      const ordenSelect = document.getElementById('idOrdenTrabajo');
+      ordenSelect.innerHTML = '<option value="">Seleccione una orden</option>';
+      
+      // Filtrar solo órdenes completadas
+      const ordenesCompletadas = ordenes.filter(o => o.nombreEstado === 'Completada');
+      ordenesCompletadas.forEach(o => {
+        ordenSelect.innerHTML += `<option value="${o.idOrdenTrabajo}">Orden #${o.idOrdenTrabajo} - ${o.diagnosticoInicial.substring(0, 50)}...</option>`;
+      });
+      
+      // Llenar select de estados de pago dinámicamente
+      const estadoSelect = document.getElementById('idEstadoPago');
+      estadoSelect.innerHTML = '';
+      
+      if (estadosPagoArray.length === 0) {
+        console.error('No se cargaron estados de pago');
+        estadoSelect.innerHTML = '<option value="">Error: No hay estados disponibles</option>';
+        return;
+      }
+      
+      estadosPagoArray.forEach(estado => {
+        // Manejar tanto minúsculas como mayúsculas
+        const idEstado = estado.id_estado_pago || estado.ID_ESTADO_PAGO;
+        const nombreEstado = estado.nombre_estado || estado.NOMBRE_ESTADO;
+        
+        const selected = nombreEstado === 'Pendiente' ? 'selected' : '';
+        estadoSelect.innerHTML += `<option value="${idEstado}" ${selected}>${nombreEstado}</option>`;
+      });
+      
+      console.log('Selects poblados. Estados en el select:', estadoSelect.innerHTML);
+    }
+
+    function updateStats() {
+      document.getElementById('total-facturas').textContent = facturas.length;
+      
+      const totalFacturado = facturas.reduce((sum, f) => sum + f.total, 0);
+      document.getElementById('total-facturado').textContent = '$' + totalFacturado.toFixed(2);
+      
+      const pendientes = facturas.filter(f => estadosPago[f.idEstadoPago] === 'Pendiente');
+      const totalPendiente = pendientes.reduce((sum, f) => sum + f.total, 0);
+      document.getElementById('facturas-pendientes').textContent = '$' + totalPendiente.toFixed(2);
+      
+      const pagadas = facturas.filter(f => estadosPago[f.idEstadoPago] === 'Pagado');
+      const totalPagado = pagadas.reduce((sum, f) => sum + f.total, 0);
+      document.getElementById('facturas-pagadas').textContent = '$' + totalPagado.toFixed(2);
+    }
+
+    function getStatusColor(estado) {
+      const colors = {
+        'Pendiente': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50',
+        'Pagado': 'bg-green-500/20 text-green-400 border-green-500/50',
+        'Cancelado': 'bg-red-500/20 text-red-400 border-red-500/50'
+      };
+      return colors[estado] || 'bg-gray-500/20 text-gray-400 border-gray-500/50';
+    }
+
+    function getStatusDotColor(estado) {
+      const colors = {
+        'Pendiente': 'bg-yellow-400',
+        'Pagado': 'bg-green-400',
+        'Cancelado': 'bg-red-400'
+      };
+      return colors[estado] || 'bg-gray-400';
+    }
+
+    function renderFacturas(facturasToRender) {
+      const container = document.getElementById('facturasList');
+      
+      if (facturasToRender.length === 0) {
+        container.innerHTML = `
+          <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
+            <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </div>
+            <p class="text-slate-400">No hay facturas para mostrar</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = facturasToRender.map(factura => {
+        const fechaEmision = new Date(factura.fechaEmision).toLocaleDateString('es-ES');
+        const estado = estadosPago[factura.idEstadoPago] || 'Desconocido';
+        
+        return `
+          <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all cursor-pointer" onclick="showDetail(${factura.idFactura})">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2">
+                  <h3 class="text-xl font-bold text-white">Factura #${factura.idFactura.toString().padStart(6, '0')}</h3>
+                  <span class="status-badge ${getStatusColor(estado)} border">
+                    <span class="status-dot ${getStatusDotColor(estado)}"></span>
+                    ${estado}
+                  </span>
+                </div>
+                <p class="text-slate-400 text-sm mb-2">Orden de Trabajo #${factura.idOrdenTrabajo}</p>
+                <div class="flex items-center gap-4 text-sm">
+                  <div class="flex items-center gap-2 text-slate-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <span>${fechaEmision}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-2xl font-bold text-primary">${factura.total.toFixed(2)}</p>
+                <button onclick="event.stopPropagation(); showDetail(${factura.idFactura})" class="text-slate-400 hover:text-white transition-colors mt-2">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+              </div>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-4 pt-4 border-t border-white/10">
+              <div>
+                <p class="text-slate-400 text-xs mb-1">Servicios</p>
+                <p class="text-white text-sm font-semibold">${factura.subtotalServicios.toFixed(2)}</p>
+              </div>
+              <div>
+                <p class="text-slate-400 text-xs mb-1">Repuestos</p>
+                <p class="text-white text-sm font-semibold">${factura.subtotalRepuestos.toFixed(2)}</p>
+              </div>
+              <div>
+                <p class="text-slate-400 text-xs mb-1">Impuestos</p>
+                <p class="text-white text-sm font-semibold">${factura.impuestosTotal.toFixed(2)}</p>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function showDetail(idFactura) {
+      const factura = facturas.find(f => f.idFactura === idFactura);
+      if (!factura) return;
+
+      const fechaEmision = new Date(factura.fechaEmision).toLocaleDateString('es-ES', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      const estado = estadosPago[factura.idEstadoPago];
+
+      document.getElementById('facturaDetail').innerHTML = `
+        <div class="space-y-6">
+          <div class="flex items-center justify-between">
+            <h4 class="text-2xl font-bold text-white">Factura #${factura.idFactura.toString().padStart(6, '0')}</h4>
+            <span class="status-badge ${getStatusColor(estado)} border">
+              <span class="status-dot ${getStatusDotColor(estado)}"></span>
+              ${estado}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-4">
+              <p class="text-slate-400 text-sm mb-1">Orden de Trabajo</p>
+              <p class="text-white font-semibold">#${factura.idOrdenTrabajo}</p>
+            </div>
+
+            <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-4">
+              <p class="text-slate-400 text-sm mb-1">Fecha de Emisión</p>
+              <p class="text-white font-semibold">${fechaEmision}</p>
+            </div>
+          </div>
+
+          <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-6">
+            <h5 class="text-lg font-bold text-white mb-4">Desglose de Costos</h5>
+            
+            <div class="space-y-3">
+              <div class="flex items-center justify-between py-2">
+                <span class="text-slate-300">Subtotal Servicios</span>
+                <span class="text-white font-semibold">$${factura.subtotalServicios.toFixed(2)}</span>
+              </div>
+              
+              <div class="flex items-center justify-between py-2">
+                <span class="text-slate-300">Subtotal Repuestos</span>
+                <span class="text-white font-semibold">$${factura.subtotalRepuestos.toFixed(2)}</span>
+              </div>
+              
+              <div class="h-px bg-white/10"></div>
+              
+              <div class="flex items-center justify-between py-2">
+                <span class="text-slate-300">Subtotal</span>
+                <span class="text-white font-semibold">$${(factura.subtotalServicios + factura.subtotalRepuestos).toFixed(2)}</span>
+              </div>
+              
+              <div class="flex items-center justify-between py-2">
+                <span class="text-slate-300">Impuestos (IVA)</span>
+                <span class="text-white font-semibold">$${factura.impuestosTotal.toFixed(2)}</span>
+              </div>
+              
+              <div class="flex items-center justify-between py-2">
+                <span class="text-slate-300">Descuentos</span>
+                <span class="text-red-400 font-semibold">-$${factura.descuentoTotal.toFixed(2)}</span>
+              </div>
+              
+              <div class="h-px bg-white/10 my-3"></div>
+              
+              <div class="flex items-center justify-between py-2">
+                <span class="text-xl font-bold text-white">TOTAL</span>
+                <span class="text-2xl font-bold text-primary">$${factura.total.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex gap-4">
+            <button onclick="closeDetailModal()" class="flex-1 px-6 py-3 bg-white/5 text-white rounded-xl hover:bg-white/10 transition-colors font-semibold">
+              Cerrar
+            </button>
+            ${estado === 'Pendiente' ? `
+              <button onclick="marcarPagada(${factura.idFactura})" class="flex-1 px-6 py-3 bg-gradient-to-r from-primary to-emerald-600 text-white rounded-xl shadow-neonGreen hover:scale-105 transition-transform font-semibold">
+                Marcar como Pagada
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('detailModal').classList.remove('hidden');
+      document.getElementById('detailModal').classList.add('flex');
+    }
+
+    function filterByStatus(status) {
+      currentFilter = status;
+      
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active', 'bg-primary/20', 'text-primary', 'border', 'border-primary/50');
+      });
+      event.target.classList.add('active', 'bg-primary/20', 'text-primary', 'border', 'border-primary/50');
+
+      if (status === 'all') {
+        facturas = [...facturasOriginales];
+      } else {
+        facturas = facturasOriginales.filter(f => estadosPago[f.idEstadoPago] === status);
+      }
+
+      updateStats();
+      renderFacturas(facturas);
+    }
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const filtered = facturasOriginales.filter(factura => {
+        return factura.idFactura.toString().includes(searchTerm) ||
+               factura.idOrdenTrabajo.toString().includes(searchTerm);
+      });
+
+      facturas = currentFilter === 'all' ? filtered : filtered.filter(f => estadosPago[f.idEstadoPago] === currentFilter);
+      renderFacturas(facturas);
+    });
+
+    function openCreateModal() {
+      document.getElementById('createModal').classList.remove('hidden');
+      document.getElementById('createModal').classList.add('flex');
+      document.getElementById('fechaEmision').valueAsDate = new Date();
+      calcularTotal();
+    }
+
+    function closeCreateModal() {
+      document.getElementById('createModal').classList.add('hidden');
+      document.getElementById('createModal').classList.remove('flex');
+      document.querySelector('form').reset();
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+      document.getElementById('detailModal').classList.remove('flex');
+    }
+
+    function calcularTotal() {
+      const subtotalServicios = parseFloat(document.getElementById('subtotalServicios').value) || 0;
+      const subtotalRepuestos = parseFloat(document.getElementById('subtotalRepuestos').value) || 0;
+      const impuestos = parseFloat(document.getElementById('impuestosTotal').value) || 0;
+      const descuentos = parseFloat(document.getElementById('descuentoTotal').value) || 0;
+
+      const total = subtotalServicios + subtotalRepuestos + impuestos - descuentos;
+      document.getElementById('totalDisplay').textContent = '$' + total.toFixed(2);
+    }
+
+    async function crearFactura(event) {
+      event.preventDefault();
+      
+      try {
+        // Obtener valores del formulario
+        const idOrdenTrabajo = parseInt(document.getElementById('idOrdenTrabajo').value);
+        const fechaEmision = document.getElementById('fechaEmision').value;
+        const idEstadoPago = parseInt(document.getElementById('idEstadoPago').value);
+        const subtotalServicios = parseFloat(document.getElementById('subtotalServicios').value) || 0;
+        const subtotalRepuestos = parseFloat(document.getElementById('subtotalRepuestos').value) || 0;
+        const impuestosTotal = parseFloat(document.getElementById('impuestosTotal').value) || 0;
+        const descuentoTotal = parseFloat(document.getElementById('descuentoTotal').value) || 0;
+        
+        // Calcular total
+        const total = subtotalServicios + subtotalRepuestos + impuestosTotal - descuentoTotal;
+        
+        // Validaciones del lado del cliente
+        if (!idOrdenTrabajo || idOrdenTrabajo <= 0) {
+          showNotification('Por favor selecciona una orden de trabajo', 'error');
+          return;
+        }
+        
+        if (!fechaEmision) {
+          showNotification('Por favor selecciona una fecha de emisión', 'error');
+          return;
+        }
+        
+        if (total < 0) {
+          showNotification('El total de la factura no puede ser negativo', 'error');
+          return;
+        }
+        
+        // Crear objeto factura
+        const factura = {
+          idOrdenTrabajo: idOrdenTrabajo,
+          fechaEmision: fechaEmision,  // Spring Boot convertirá automáticamente el string a LocalDate
+          idEstadoPago: idEstadoPago,
+          subtotalServicios: subtotalServicios,
+          subtotalRepuestos: subtotalRepuestos,
+          impuestosTotal: impuestosTotal,
+          descuentoTotal: descuentoTotal,
+          total: total
+        };
+        
+        console.log('=== DATOS DE LA FACTURA ===');
+        console.log('Estados de pago disponibles:', estadosPago);
+        console.log('ID Estado Pago seleccionado:', idEstadoPago);
+        console.log('Nombre del estado:', estadosPago[idEstadoPago]);
+        console.log('Factura completa:', factura);
+        console.log('========================');
+        
+        // Enviar petición al backend
+        const response = await fetch(`${API_BASE}/facturas`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(factura)
+        });
+        
+        console.log('Response status:', response.status);
+        
+        // Manejar respuesta
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => null);
+          console.error('Error del servidor:', errorData);
+          
+          if (errorData && errorData.error) {
+            throw new Error(errorData.error + (errorData.detalle ? ': ' + errorData.detalle : ''));
+          } else {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+          }
+        }
+        
+        const facturaCreada = await response.json();
+        console.log('Factura creada:', facturaCreada);
+        
+        showNotification('✓ Factura creada exitosamente (ID: ' + facturaCreada.idFactura + ')', 'success');
+        closeCreateModal();
+        await loadData();
+        
+      } catch (error) {
+        console.error('Error completo:', error);
+        showNotification('Error al crear la factura: ' + error.message, 'error');
+      }
+    }
+
+    async function marcarPagada(idFactura) {
+      if (!confirm('¿Está seguro de marcar esta factura como pagada?')) {
+        return;
+      }
+
+      // Nota: Necesitarías implementar un endpoint PATCH en el backend
+      // Por ahora solo mostramos la notificación
+      showNotification('Funcionalidad pendiente de implementar en el backend', 'warning');
+    }
+
+    function showNotification(message, type) {
+      const colors = {
+        success: 'bg-green-500',
+        error: 'bg-red-500',
+        warning: 'bg-yellow-500',
+        info: 'bg-blue-500'
+      };
+      
+      const notification = document.createElement('div');
+      notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-4 rounded-xl shadow-lg z-[100] transform transition-all duration-300`;
+      notification.textContent = message;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+
+    function logout() {
+      if (confirm('¿Seguro que deseas cerrar sesión?')) {
+        window.location.href = '../../auth/login.html';
+      }
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>MotorPlus · Dashboard</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- HTMX (si lo usas en otras partes) -->
+  <script src="../static/htmx.min.js"></script>
+
+  <!-- jsPDF y autoTable para generar PDF desde el front -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#22c55e",
+            secondary: "#0ea5e9",
+            accent: "#f97316",
+            deep: "#0f172a",
+          },
+          boxShadow: {
+            neon: "0 0 25px rgba(56, 189, 248, 0.8)",
+            neonGreen: "0 0 25px rgba(34, 197, 94, 0.7)",
+            neonOrange: "0 0 35px rgba(249, 115, 22, 0.9)",
+          },
+          animation: {
+            float: "float 5s ease-in-out infinite",
+            pulse: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    body {
+      background: linear-gradient(135deg, #020617, #0f172a, #1e3a8a, #0f766e, #4c1d95);
+      background-size: 350% 350%;
+      animation: gradientMove 18s ease infinite;
+    }
+    @keyframes gradientMove {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="fixed left-0 top-0 h-screen w-64 backdrop-blur-xl bg-white/5 border-r border-white/10 p-6 z-50">
+    <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 bg-gradient-to-br from-secondary to-primary rounded-lg shadow-neonGreen flex items-center justify-center overflow-hidden">
+            <img
+                src="../static/img/IMG_1332.jpeg"
+                alt="Logo MotorPlus"
+                class="w-full h-full object-cover"
+            />
+        </div>
+        <h1 class="text-xl font-bold text-white">MotorPlus</h1>
+    </div>
+
+
+    <nav class="space-y-2">
+      <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-primary/20 to-secondary/20 text-white border border-white/10 shadow-neonGreen">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        Dashboard
+      </a>
+      <a href="../modulos/clientes/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+        Clientes
+      </a>
+      <a href="../modulos/vehiculos/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+        </svg>
+        Vehículos
+      </a>
+      <a href="../modulos/servicios/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        Servicios
+      </a>
+      <a href="../modulos/repuestos/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+        Repuestos
+      </a>
+      <a href="../modulos/mecanicos/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+        </svg>
+        Mecánicos
+      </a>
+      <a href="../modulos/ordenes/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+        </svg>
+        Órdenes
+      </a>
+      <a href="../modulos/facturas/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+        </svg>
+        Facturas
+      </a>
+    </nav>
+
+    <div class="absolute bottom-6 left-6 right-6">
+      <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-400 hover:bg-rose-500/10 transition-all border border-rose-500/20">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+        </svg>
+        Cerrar Sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="ml-64 p-8">
+    <!-- HEADER -->
+    <header class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-3xl font-bold text-white mb-2">Panel de Control</h2>
+        <p class="text-slate-400">Bienvenido al sistema de gestión del taller</p>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl px-4 py-2">
+          <p class="text-xs text-slate-400">Fecha</p>
+          <p class="text-white font-semibold" id="fecha"></p>
+        </div>
+
+        <!-- BOTÓN DESCARGAR MÉTRICAS PDF -->
+        <button
+          id="btnPdf"
+          onclick="generarReportePDF()"
+          class="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-secondary text-white text-sm font-semibold shadow-neonGreen hover:scale-[1.03] active:scale-95 transition-transform"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 4v9m0 0l-3-3m3 3l3-3M5 12v5a2 2 0 002 2h10a2 2 0 002-2v-5" />
+          </svg>
+          <span>Descargar métricas PDF</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- STATS CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-neon animate-float hover:scale-105 transition-transform">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-primary to-emerald-600 rounded-xl flex items-center justify-center shadow-neonGreen">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+          <span class="text-emerald-400 text-sm font-semibold">+12%</span>
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-1" id="total-clientes">0</h3>
+        <p class="text-slate-400 text-sm">Total Clientes</p>
+      </div>
+
+      <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-neon animate-float hover:scale-105 transition-transform" style="animation-delay: 0.1s;">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-secondary to-blue-600 rounded-xl flex items-center justify-center shadow-neon">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <span class="text-blue-400 text-sm font-semibold">+8%</span>
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-1" id="ordenes-activas">0</h3>
+        <p class="text-slate-400 text-sm">Órdenes Activas</p>
+      </div>
+
+      <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-neonOrange animate-float hover:scale-105 transition-transform" style="animation-delay: 0.2s;">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-accent to-orange-600 rounded-xl flex items-center justify-center shadow-neonOrange">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <span class="text-orange-400 text-sm font-semibold">+23%</span>
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-1" id="ingresos-mes">$0</h3>
+        <p class="text-slate-400 text-sm">Ingresos del Mes</p>
+      </div>
+
+      <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-neon animate-float hover:scale-105 transition-transform" style="animation-delay: 0.3s;">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+          </div>
+          <span class="text-purple-400 text-sm font-semibold">-5%</span>
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-1" id="stock-repuestos">0</h3>
+        <p class="text-slate-400 text-sm">Stock Repuestos</p>
+      </div>
+    </div>
+
+    <!-- RECENT ACTIVITY -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Órdenes Recientes -->
+      <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-neon">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-bold text-white">Órdenes Recientes</h3>
+          <a href="../modulos/ordenes/index.html" class="text-secondary hover:text-primary transition-colors text-sm">Ver todas →</a>
+        </div>
+        <div id="ordenes-recientes" class="space-y-3">
+          <div class="text-slate-400 text-sm">Cargando órdenes...</div>
+        </div>
+      </div>
+
+      <!-- Actividad del Día -->
+      <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-neon">
+        <h3 class="text-xl font-bold text-white mb-6">Actividad del Día</h3>
+        <div class="space-y-4">
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-white font-medium">Orden #1234 completada</p>
+              <p class="text-slate-400 text-sm">Hace 15 minutos</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-white font-medium">Nuevo cliente registrado</p>
+              <p class="text-slate-400 text-sm">Hace 1 hora</p>
+            </div>
+          </div>
+          <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-white font-medium">Orden #1230 en progreso</p>
+              <p class="text-slate-400 text-sm">Hace 2 horas</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = 'http://localhost:8080/api';
+
+    // Fecha actual
+    document.getElementById('fecha').textContent = new Date().toLocaleDateString('es-ES', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    // Formatear fecha bonita
+    function formatearFecha(fechaStr) {
+      if (!fechaStr) return "";
+      const d = new Date(fechaStr);
+      if (isNaN(d)) return "";
+      return d.toLocaleDateString('es-ES', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    }
+
+    // Colores de estado (coherentes con módulo de órdenes)
+    function getStatusColor(estado) {
+      const colors = {
+        'Registrada': 'bg-blue-500/20 text-blue-300 border-blue-500/50',
+        'En Proceso': 'bg-yellow-500/20 text-yellow-300 border-yellow-500/50',
+        'Completada': 'bg-green-500/20 text-green-300 border-green-500/50',
+        'Cancelada': 'bg-red-500/20 text-red-300 border-red-500/50'
+      };
+      return colors[estado] || 'bg-gray-500/20 text-gray-300 border-gray-500/50';
+    }
+
+    function getStatusDotColor(estado) {
+      const colors = {
+        'Registrada': 'bg-blue-400',
+        'En Proceso': 'bg-yellow-400',
+        'Completada': 'bg-green-400',
+        'Cancelada': 'bg-red-400'
+      };
+      return colors[estado] || 'bg-gray-400';
+    }
+
+    // ===== Cargar estadísticas para las cards =====
+    async function cargarStats() {
+      try {
+        const [clientes, ordenes, repuestos] = await Promise.all([
+          fetch(`${API_BASE}/clientes`).then(r => r.json()),
+          fetch(`${API_BASE}/ordenes`).then(r => r.json()),
+          fetch(`${API_BASE}/repuestos`).then(r => r.json())
+        ]);
+
+        document.getElementById('total-clientes').textContent = clientes.length;
+        document.getElementById('ordenes-activas').textContent = ordenes.length;
+        document.getElementById('stock-repuestos').textContent =
+          repuestos.reduce((sum, r) => sum + (r.stockActual ?? 0), 0);
+        document.getElementById('ingresos-mes').textContent =
+          '$' + (Math.random() * 50000 + 20000).toFixed(0);
+      } catch (e) {
+        console.error('Error cargando stats:', e);
+      }
+    }
+
+    // ===== Órdenes recientes (top 5) =====
+    async function cargarOrdenesRecientes() {
+      const contenedor = document.getElementById('ordenes-recientes');
+      if (!contenedor) return;
+
+      contenedor.innerHTML = '<div class="text-slate-400 text-sm">Cargando órdenes...</div>';
+
+      try {
+        const [ordenesRes, vehiculosRes] = await Promise.all([
+          fetch(`${API_BASE}/ordenes`),
+          fetch(`${API_BASE}/vehiculos`)
+        ]);
+
+        const ordenes = await ordenesRes.json();
+        const vehiculos = await vehiculosRes.json();
+
+        const ordenesOrdenadas = [...ordenes].sort((a, b) => {
+          const fa = new Date(a.fechaIngreso || 0);
+          const fb = new Date(b.fechaIngreso || 0);
+          return fb - fa;
+        });
+
+        const ultimas = ordenesOrdenadas.slice(0, 5);
+
+        if (!ultimas.length) {
+          contenedor.innerHTML = '<div class="text-slate-400 text-sm">No hay órdenes recientes.</div>';
+          return;
+        }
+
+        contenedor.innerHTML = ultimas.map(o => {
+          const vehiculo = vehiculos.find(v => v.idVehiculo === o.idVehiculo);
+          const vehiculoTexto = vehiculo
+            ? `${vehiculo.marca} ${vehiculo.modelo} · ${vehiculo.placa}`
+            : 'Vehículo no registrado';
+
+          const estado = o.nombreEstado || 'Pendiente';
+          const fecha = formatearFecha(o.fechaIngreso);
+          const diagnostico = o.diagnosticoInicial || 'Sin diagnóstico';
+
+          return `
+            <div class="group flex items-center justify-between gap-4 px-4 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-secondary/50 transition-all duration-200 hover:shadow-neon cursor-pointer"
+                 onclick="window.location.href='../modulos/ordenes/index.html'">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full bg-secondary/15 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                  <svg class="w-5 h-5 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-sm font-semibold text-white">
+                    Orden #${o.idOrdenTrabajo}
+                  </p>
+                  <p class="text-xs text-slate-400">
+                    ${vehiculoTexto}
+                  </p>
+                  <p class="text-xs text-slate-500 mt-1 line-clamp-1">
+                    ${diagnostico}
+                  </p>
+                </div>
+              </div>
+              <div class="text-right">
+                <span class="status-badge ${getStatusColor(estado)} border">
+                  <span class="status-dot ${getStatusDotColor(estado)}"></span>
+                  ${estado}
+                </span>
+                <p class="text-[11px] text-slate-500 mt-1">${fecha}</p>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error('Error cargando órdenes recientes:', e);
+        contenedor.innerHTML = '<div class="text-rose-400 text-sm">Error al cargar las órdenes.</div>';
+      }
+    }
+
+    // ===== Obtener datos crudos para métricas del PDF =====
+    async function obtenerMetricasDatos() {
+      async function safeFetch(endpoint) {
+        try {
+          const res = await fetch(`${API_BASE}${endpoint}`);
+          if (!res.ok) return [];
+          return await res.json();
+        } catch (e) {
+          console.warn('No se pudo cargar', endpoint, e);
+          return [];
+        }
+      }
+
+      const [
+        clientes,
+        ordenes,
+        vehiculos,
+        facturas,
+        servicios,
+        mecanicos,
+        repuestos,
+        ordenServicios,
+        ordenRepuestos,
+        movimientos
+      ] = await Promise.all([
+        safeFetch('/clientes'),
+        safeFetch('/ordenes'),
+        safeFetch('/vehiculos'),
+        safeFetch('/facturas'),
+        safeFetch('/servicios'),
+        safeFetch('/mecanicos'),
+        safeFetch('/repuestos'),
+        safeFetch('/orden-servicio'),
+        safeFetch('/orden-repuesto'),
+        safeFetch('/movimiento-inventario') // ajusta al endpoint real que tengas
+      ]);
+
+      return {
+        clientes,
+        ordenes,
+        vehiculos,
+        facturas,
+        servicios,
+        mecanicos,
+        repuestos,
+        ordenServicios,
+        ordenRepuestos,
+        movimientos
+      };
+    }
+
+    // ===== Calcular métricas de negocio (coherentes con tu modelo) =====
+    function calcularMetricas(datos) {
+      const {
+        clientes,
+        ordenes,
+        vehiculos,
+        facturas,
+        servicios,
+        mecanicos,
+        repuestos,
+        ordenServicios,
+        ordenRepuestos,
+        movimientos
+      } = datos;
+
+      // Helpers
+      const totalOrdenes = ordenes.length;
+
+      const ordenesPorEstado = ordenes.reduce((acc, o) => {
+        const key = o.nombreEstado || 'Sin estado';
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      }, {});
+
+      const tiemposHoras = ordenes
+        .filter(o => o.fechaSalida)
+        .map(o => {
+          const ingreso = new Date(o.fechaIngreso);
+          const salida = new Date(o.fechaSalida);
+          return Math.max(0, Math.round((salida - ingreso) / (1000 * 60 * 60)));
+        });
+
+      const promedioHoras = tiemposHoras.length
+        ? Math.round(tiemposHoras.reduce((a, b) => a + b, 0) / tiemposHoras.length)
+        : 0;
+
+      const totalFacturado = facturas.reduce((sum, f) => sum + (f.total || 0), 0);
+
+      const facturasPorEstado = facturas.reduce((acc, f) => {
+        const key = f.nombreEstado || f.estadoPago || 'Sin estado';
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      }, {});
+
+      const serviciosPorOrden = ordenServicios.reduce((acc, os) => {
+        acc[os.idOrdenTrabajo] = (acc[os.idOrdenTrabajo] || 0) + 1;
+        return acc;
+      }, {});
+
+      const promedioServiciosPorOrden = totalOrdenes
+        ? (Object.values(serviciosPorOrden).reduce((a, b) => a + b, 0) / totalOrdenes).toFixed(2)
+        : 0;
+
+      const repuestosPorOrden = ordenRepuestos.reduce((acc, orp) => {
+        acc[orp.idOrdenTrabajo] = (acc[orp.idOrdenTrabajo] || 0) + (orp.cantidadUsada || orp.cantidad || 0);
+        return acc;
+      }, {});
+
+      const promedioRepuestosPorOrden = totalOrdenes
+        ? (Object.values(repuestosPorOrden).reduce((a, b) => a + b, 0) / totalOrdenes).toFixed(2)
+        : 0;
+
+      // Top clientes por número de órdenes (via id_cliente en vehiculo)
+      const clienteOrdenes = {};
+      ordenes.forEach(o => {
+        const vehiculo = vehiculos.find(v => v.idVehiculo === o.idVehiculo);
+        if (!vehiculo) return;
+        const idCli = vehiculo.idCliente;
+        clienteOrdenes[idCli] = (clienteOrdenes[idCli] || 0) + 1;
+      });
+
+      const topClientes = Object.entries(clienteOrdenes)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([idCli, total]) => {
+          const c = clientes.find(cl => cl.idCliente == idCli);
+          const nombre = c ? `${c.nombre} ${c.apellido}` : `Cliente #${idCli}`;
+          return `${nombre} (${total} órdenes)`;
+        })
+        .join(', ') || 'Sin datos';
+
+      // Utilización de mecánicos (cantidad de servicios/órdenes donde participan)
+      // Si tienes endpoint /orden-servicio-mecanico lo podrías usar; aquí usamos ordenServicios como proxy
+      const serviciosPorMecanico = {}; // fake simple si no hay datos de asignación
+      // Ejemplo: si en tu backend añades mecánicos a orden_servicio, podrías contar aquí
+
+      const totalRepuestos = repuestos.length;
+      const totalStock = repuestos.reduce((sum, r) => sum + (r.stockActual ?? 0), 0);
+
+      // Inventario: movimientos de salida vs entrada
+      const salidas = movimientos.filter(m => m.tipoMovimiento === 'salida');
+      const entradas = movimientos.filter(m => m.tipoMovimiento === 'entrada');
+      const totalSalidas = salidas.reduce((sum, m) => sum + (m.cantidad || 0), 0);
+      const totalEntradas = entradas.reduce((sum, m) => sum + (m.cantidad || 0), 0);
+
+      const metricas = [
+        // BÁSICO
+        {
+          nivel: 'Básico',
+          nombre: 'Total de clientes',
+          descripcion: 'Número de clientes registrados en la tabla CLIENTE.',
+          valor: clientes.length
+        },
+        {
+          nivel: 'Básico',
+          nombre: 'Total de vehículos',
+          descripcion: 'Vehículos registrados en la tabla VEHICULO.',
+          valor: vehiculos.length
+        },
+        {
+          nivel: 'Básico',
+          nombre: 'Total de órdenes de trabajo',
+          descripcion: 'Órdenes registradas en la tabla ORDEN_TRABAJO.',
+          valor: totalOrdenes
+        },
+        {
+          nivel: 'Básico',
+          nombre: 'Total de facturas',
+          descripcion: 'Registros de la tabla FACTURA.',
+          valor: facturas.length
+        },
+        {
+          nivel: 'Básico',
+          nombre: 'Total de servicios definidos',
+          descripcion: 'Servicios disponibles en la tabla SERVICIO.',
+          valor: servicios.length
+        },
+        {
+          nivel: 'Básico',
+          nombre: 'Total de repuestos definidos',
+          descripcion: 'Repuestos registrados en la tabla REPUESTO.',
+          valor: totalRepuestos
+        },
+
+        // INTERMEDIO
+        {
+          nivel: 'Intermedio',
+          nombre: 'Órdenes por estado',
+          descripcion: 'Distribución de ORDEN_TRABAJO agrupada por ESTADO_ORDEN.',
+          valor: Object.entries(ordenesPorEstado).map(([k, v]) => `${k}: ${v}`).join(' | ') || 'Sin datos'
+        },
+        {
+          nivel: 'Intermedio',
+          nombre: 'Facturas por estado de pago',
+          descripcion: 'Distribución de FACTURA agrupada por ESTADO_PAGO_FACTURA.',
+          valor: Object.entries(facturasPorEstado).map(([k, v]) => `${k}: ${v}`).join(' | ') || 'Sin datos'
+        },
+        {
+          nivel: 'Intermedio',
+          nombre: 'Promedio servicios por orden',
+          descripcion: 'Promedio de registros en ORDEN_SERVICIO por ORDEN_TRABAJO.',
+          valor: promedioServiciosPorOrden
+        },
+        {
+          nivel: 'Intermedio',
+          nombre: 'Promedio repuestos por orden',
+          descripcion: 'Promedio de cantidad usada en ORDEN_REPUESTO por ORDEN_TRABAJO.',
+          valor: promedioRepuestosPorOrden
+        },
+        {
+          nivel: 'Intermedio',
+          nombre: 'Tiempo promedio de reparación (horas)',
+          descripcion: 'Promedio de horas entre FECHA_INGRESO y FECHA_SALIDA de ORDEN_TRABAJO.',
+          valor: promedioHoras + ' h'
+        },
+        {
+          nivel: 'Intermedio',
+          nombre: 'Top 3 clientes por número de órdenes',
+          descripcion: 'Clientes con más órdenes asociadas a sus vehículos.',
+          valor: topClientes
+        },
+
+        // AVANZADO
+        {
+          nivel: 'Avanzado',
+          nombre: 'Total facturado',
+          descripcion: 'Suma del campo TOTAL en la tabla FACTURA.',
+          valor: '$' + totalFacturado.toFixed(2)
+        },
+        {
+          nivel: 'Avanzado',
+          nombre: 'Saldo neto de inventario (entradas - salidas)',
+          descripcion: 'Diferencia entre entradas y salidas en MOVIMIENTO_INVENTARIO.',
+          valor: (totalEntradas - totalSalidas).toFixed(2)
+        },
+        {
+          nivel: 'Avanzado',
+          nombre: 'Índice de rotación de repuestos (aprox.)',
+          descripcion: 'Relación entre salidas registradas y stock actual total.',
+          valor: totalStock ? (totalSalidas / totalStock).toFixed(2) : 'N/A'
+        },
+        {
+          nivel: 'Avanzado',
+          nombre: 'Promedio de órdenes por cliente',
+          descripcion: 'Relación entre total de órdenes y total de clientes.',
+          valor: clientes.length ? (totalOrdenes / clientes.length).toFixed(2) : 'N/A'
+        },
+        {
+          nivel: 'Avanzado',
+          nombre: 'Promedio de vehículos por cliente',
+          descripcion: 'Relación entre total de vehículos y total de clientes.',
+          valor: clientes.length ? (vehiculos.length / clientes.length).toFixed(2) : 'N/A'
+        }
+      ];
+
+      return metricas;
+    }
+
+    // ===== 20 consultas SQL (básico / intermedio / avanzado) =====
+    function obtenerConsultasSQL() {
+      return [
+        // BÁSICO
+        {
+          nivel: 'Básico',
+          titulo: 'Total de clientes',
+          sql: `SELECT COUNT(*) AS total_clientes
+FROM cliente;`
+        },
+        {
+          nivel: 'Básico',
+          titulo: 'Total de vehículos',
+          sql: `SELECT COUNT(*) AS total_vehiculos
+FROM vehiculo;`
+        },
+        {
+          nivel: 'Básico',
+          titulo: 'Total de órdenes de trabajo',
+          sql: `SELECT COUNT(*) AS total_ordenes
+FROM orden_trabajo;`
+        },
+        {
+          nivel: 'Básico',
+          titulo: 'Órdenes por estado',
+          sql: `SELECT eo.nombre_estado,
+       COUNT(*) AS total
+FROM orden_trabajo ot
+JOIN estado_orden eo ON ot.id_estado_orden = eo.id_estado_orden
+GROUP BY eo.nombre_estado
+ORDER BY total DESC;`
+        },
+        {
+          nivel: 'Básico',
+          titulo: 'Facturas por estado de pago',
+          sql: `SELECT epf.nombre_estado,
+       COUNT(*) AS total
+FROM factura f
+JOIN estado_pago_factura epf ON f.id_estado_pago = epf.id_estado_pago
+GROUP BY epf.nombre_estado
+ORDER BY total DESC;`
+        },
+        {
+          nivel: 'Básico',
+          titulo: 'Listado de servicios con precio base',
+          sql: `SELECT id_servicio,
+       nombre,
+       precio_base
+FROM servicio
+ORDER BY nombre;`
+        },
+        {
+          nivel: 'Básico',
+          titulo: 'Listado de repuestos con stock actual',
+          sql: `SELECT id_repuesto,
+       nombre,
+       stock_actual,
+       unidad_medida
+FROM repuesto
+ORDER BY nombre;`
+        },
+
+        // INTERMEDIO
+        {
+          nivel: 'Intermedio',
+          titulo: 'Top 5 clientes por número de órdenes',
+          sql: `SELECT c.id_cliente,
+       c.nombre,
+       c.apellido,
+       COUNT(*) AS total_ordenes
+FROM cliente c
+JOIN vehiculo v ON c.id_cliente = v.id_cliente
+JOIN orden_trabajo ot ON v.id_vehiculo = ot.id_vehiculo
+GROUP BY c.id_cliente, c.nombre, c.apellido
+ORDER BY total_ordenes DESC
+FETCH FIRST 5 ROWS ONLY;`
+        },
+        {
+          nivel: 'Intermedio',
+          titulo: 'Tiempo de reparación por orden (horas)',
+          sql: `SELECT ot.id_orden_trabajo,
+       ot.fecha_ingreso,
+       ot.fecha_salida,
+       ROUND((ot.fecha_salida - ot.fecha_ingreso) * 24, 2) AS horas_reparacion
+FROM orden_trabajo ot
+WHERE ot.fecha_salida IS NOT NULL
+ORDER BY horas_reparacion DESC;`
+        },
+        {
+          nivel: 'Intermedio',
+          titulo: 'Promedio servicios por orden',
+          sql: `SELECT AVG(cnt_servicios) AS promedio_servicios_por_orden
+FROM (
+  SELECT id_orden_trabajo,
+         COUNT(*) AS cnt_servicios
+  FROM orden_servicio
+  GROUP BY id_orden_trabajo
+);`
+        },
+        {
+          nivel: 'Intermedio',
+          titulo: 'Promedio repuestos por orden',
+          sql: `SELECT AVG(cnt_repuestos) AS promedio_repuestos_por_orden
+FROM (
+  SELECT id_orden_trabajo,
+         SUM(cantidad_usada) AS cnt_repuestos
+  FROM orden_repuesto
+  GROUP BY id_orden_trabajo
+);`
+        },
+        {
+          nivel: 'Intermedio',
+          titulo: 'Ingresos por mes (total facturado)',
+          sql: `SELECT TO_CHAR(fecha_emision, 'YYYY-MM') AS anio_mes,
+       SUM(total) AS total_facturado
+FROM factura
+GROUP BY TO_CHAR(fecha_emision, 'YYYY-MM')
+ORDER BY anio_mes;`
+        },
+        {
+          nivel: 'Intermedio',
+          titulo: 'Repuestos más usados en órdenes',
+          sql: `SELECT r.id_repuesto,
+       r.nombre,
+       SUM(orpt.cantidad_usada) AS total_usado
+FROM repuesto r
+JOIN orden_repuesto orpt ON r.id_repuesto = orpt.id_repuesto
+GROUP BY r.id_repuesto, r.nombre
+ORDER BY total_usado DESC;`
+        },
+
+        // AVANZADO
+        {
+          nivel: 'Avanzado',
+          titulo: 'Utilización de mecánicos (órdenes atendidas)',
+          sql: `SELECT m.id_mecanico,
+       m.nombre,
+       m.apellido,
+       COUNT(DISTINCT os.id_orden_trabajo) AS ordenes_atendidas
+FROM mecanico m
+JOIN orden_servicio_mecanico osm ON m.id_mecanico = osm.id_mecanico
+JOIN orden_servicio os ON osm.id_orden_servicio = os.id_orden_servicio
+GROUP BY m.id_mecanico, m.nombre, m.apellido
+ORDER BY ordenes_atendidas DESC;`
+        },
+        {
+          nivel: 'Avanzado',
+          titulo: 'Costo total de servicios vs repuestos por orden',
+          sql: `SELECT f.id_factura,
+       ot.id_orden_trabajo,
+       f.subtotal_servicios,
+       f.subtotal_repuestos,
+       f.total
+FROM factura f
+JOIN orden_trabajo ot ON f.id_orden_trabajo = ot.id_orden_trabajo
+ORDER BY f.id_factura;`
+        },
+        {
+          nivel: 'Avanzado',
+          titulo: 'Índice de rotación de inventario por repuesto',
+          sql: `SELECT r.id_repuesto,
+       r.nombre,
+       SUM(CASE WHEN mi.tipo_movimiento = 'salida' THEN mi.cantidad ELSE 0 END) AS total_salidas,
+       r.stock_actual,
+       CASE 
+         WHEN r.stock_actual > 0 THEN
+           ROUND(SUM(CASE WHEN mi.tipo_movimiento = 'salida' THEN mi.cantidad ELSE 0 END) / r.stock_actual, 2)
+         ELSE NULL
+       END AS indice_rotacion
+FROM repuesto r
+LEFT JOIN movimiento_inventario mi ON r.id_repuesto = mi.id_repuesto
+GROUP BY r.id_repuesto, r.nombre, r.stock_actual
+ORDER BY indice_rotacion DESC NULLS LAST;`
+        },
+        {
+          nivel: 'Avanzado',
+          titulo: 'Mecánicos por especialidad',
+          sql: `SELECT e.nombre AS especialidad,
+       COUNT(me.id_mecanico) AS total_mecanicos
+FROM especialidad e
+LEFT JOIN mecanico_especialidad me ON e.id_especialidad = me.id_especialidad
+GROUP BY e.nombre
+ORDER BY total_mecanicos DESC;`
+        },
+        {
+          nivel: 'Avanzado',
+          titulo: 'Servicios más facturados',
+          sql: `SELECT s.id_servicio,
+       s.nombre,
+       COUNT(dfs.id_orden_servicio) AS veces_facturado,
+       SUM(dfs.total_linea) AS total_ingresos
+FROM servicio s
+JOIN orden_servicio os ON s.id_servicio = os.id_servicio
+JOIN detalle_factura_servicio dfs ON os.id_orden_servicio = dfs.id_orden_servicio
+GROUP BY s.id_servicio, s.nombre
+ORDER BY total_ingresos DESC;`
+        },
+        {
+          nivel: 'Avanzado',
+          titulo: 'Margen de servicios vs repuestos por mes',
+          sql: `SELECT TO_CHAR(f.fecha_emision, 'YYYY-MM') AS anio_mes,
+       SUM(f.subtotal_servicios) AS total_servicios,
+       SUM(f.subtotal_repuestos) AS total_repuestos,
+       SUM(f.total) AS total_facturado
+FROM factura f
+GROUP BY TO_CHAR(f.fecha_emision, 'YYYY-MM')
+ORDER BY anio_mes;`
+        }
+      ];
+    }
+
+    // ===== Generar PDF =====
+    async function generarReportePDF() {
+      const btn = document.getElementById('btnPdf');
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert('No se pudo cargar jsPDF. Revisa la conexión a Internet.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.classList.add('opacity-70', 'cursor-not-allowed');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = `
+        <svg class="animate-spin h-4 w-4 mx-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Generando...
+      `;
+
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        const datos = await obtenerMetricasDatos();
+        const metricas = calcularMetricas(datos);
+        const consultas = obtenerConsultasSQL();
+
+        // Encabezado
+        doc.setFontSize(16);
+        doc.text('MotorPlus - Reporte de Métricas', 14, 18);
+        doc.setFontSize(10);
+        doc.text('Fecha: ' + new Date().toLocaleString('es-ES'), 14, 24);
+
+        // Tabla de métricas
+        const metricasBody = metricas.map((m, i) => [
+          i + 1,
+          m.nivel,
+          m.nombre,
+          m.descripcion,
+          String(m.valor ?? '-')
+        ]);
+
+        doc.autoTable({
+          startY: 30,
+          head: [['#', 'Nivel', 'Métrica', 'Descripción', 'Valor']],
+          body: metricasBody,
+          styles: { fontSize: 8, cellPadding: 2 },
+          columnStyles: {
+            0: { cellWidth: 8 },
+            1: { cellWidth: 18 },
+            2: { cellWidth: 40 },
+            3: { cellWidth: 80 },
+            4: { cellWidth: 40 }
+          }
+        });
+
+        let finalY = doc.lastAutoTable.finalY || 30;
+
+        // Sección de consultas SQL
+        doc.setFontSize(14);
+        doc.text('Consultas SQL sugeridas (Básico / Intermedio / Avanzado)', 14, finalY + 10);
+
+        const consultasBody = consultas.map((c, i) => [
+          i + 1,
+          c.nivel,
+          c.titulo,
+          c.sql
+        ]);
+
+        doc.autoTable({
+          startY: finalY + 14,
+          head: [['#', 'Nivel', 'Consulta', 'SQL']],
+          body: consultasBody,
+          styles: { fontSize: 7, cellPadding: 2 },
+          columnStyles: {
+            0: { cellWidth: 8 },
+            1: { cellWidth: 18 },
+            2: { cellWidth: 45 },
+            3: { cellWidth: 119 }
+          }
+        });
+
+        const fechaArchivo = new Date().toISOString().slice(0, 10);
+        doc.save(`motorplus-metricas-${fechaArchivo}.pdf`);
+      } catch (e) {
+        console.error('Error generando PDF:', e);
+        alert('Ocurrió un error al generar el PDF. Revisa la consola.');
+      } finally {
+        btn.disabled = false;
+        btn.classList.remove('opacity-70', 'cursor-not-allowed');
+        btn.innerHTML = originalText;
+      }
+    }
+
+    function logout() {
+      if (confirm('¿Seguro que deseas cerrar sesión?')) {
+        window.location.href = '../auth/login.html';
+      }
+    }
+
+    // Inicializar dashboard
+    cargarStats();
+    cargarOrdenesRecientes();
+  </script>
+</body>
+</html>

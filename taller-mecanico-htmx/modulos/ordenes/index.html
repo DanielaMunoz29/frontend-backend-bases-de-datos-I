@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>MotorPlus · Órdenes de Trabajo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: "#22c55e",
+            secondary: "#0ea5e9",
+            accent: "#f97316",
+            deep: "#0f172a",
+          },
+          boxShadow: {
+            neon: "0 0 25px rgba(56, 189, 248, 0.8)",
+            neonGreen: "0 0 25px rgba(34, 197, 94, 0.7)",
+            neonOrange: "0 0 35px rgba(249, 115, 22, 0.9)",
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    body {
+      background: linear-gradient(135deg, #020617, #0f172a, #1e3a8a, #0f766e, #4c1d95);
+      background-size: 350% 350%;
+      animation: gradientMove 18s ease infinite;
+    }
+    @keyframes gradientMove {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    .step-indicator {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+    .step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+    .step::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.2);
+      z-index: 0;
+    }
+    .step:first-child::before {
+      left: 50%;
+      width: 50%;
+    }
+    .step:last-child::before {
+      width: 50%;
+    }
+    .step-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.5rem;
+      position: relative;
+      z-index: 1;
+      transition: all 0.3s;
+    }
+    .step.active .step-circle {
+      background: linear-gradient(to right, #22c55e, #10b981);
+      border-color: #22c55e;
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+    }
+    .step.completed .step-circle {
+      background: #22c55e;
+      border-color: #22c55e;
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="fixed left-0 top-0 h-screen w-64 backdrop-blur-xl bg-white/5 border-r border-white/10 p-6 z-50">
+    <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 bg-gradient-to-br from-secondary to-primary rounded-lg shadow-neonGreen flex items-center justify-center overflow-hidden">
+            <img
+                src="../../static/img/IMG_1332.jpeg"
+                alt="Logo MotorPlus"
+                class="w-full h-full object-cover"
+            />
+        </div>
+        <h1 class="text-xl font-bold text-white">MotorPlus</h1>
+    </div>
+
+    <nav class="space-y-2">
+      <a href="../../dashboard/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Dashboard
+      </a>
+      <a href="../clientes/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        Clientes
+      </a>
+      <a href="../vehiculos/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+        Vehículos
+      </a>
+      <a href="../servicios/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Servicios
+      </a>
+      <a href="../repuestos/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        Repuestos
+      </a>
+      <a href="../mecanicos/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        Mecánicos
+      </a>
+      <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-primary/20 to-secondary/20 text-white border border-white/10 shadow-neonGreen">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+        Órdenes
+      </a>
+      <a href="../facturas/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+        Facturas
+      </a>
+    </nav>
+
+    <div class="absolute bottom-6 left-6 right-6">
+      <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-400 hover:bg-rose-500/10 transition-all border border-rose-500/20">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        Cerrar Sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="ml-64 p-8">
+    <!-- HEADER -->
+    <header class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-3xl font-bold text-white mb-2">Órdenes de Trabajo</h2>
+        <p class="text-slate-400">Gestiona todas las órdenes del taller</p>
+      </div>
+      <div class="flex items-center gap-4">
+        <button onclick="openCreateModal()" class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-emerald-600 text-white rounded-xl shadow-neonGreen hover:scale-105 transition-transform font-semibold">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Nueva Orden
+        </button>
+      </div>
+    </header>
+
+    <!-- STATS CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-neon">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-1" id="total-ordenes">0</h3>
+        <p class="text-slate-400 text-sm">Total Órdenes</p>
+      </div>
+
+      <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-neon">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-1" id="ordenes-pendientes">0</h3>
+        <p class="text-slate-400 text-sm">En Proceso</p>
+      </div>
+
+      <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-neonGreen">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-primary to-emerald-600 rounded-xl flex items-center justify-center shadow-neonGreen">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          </div>
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-1" id="ordenes-completadas">0</h3>
+        <p class="text-slate-400 text-sm">Completadas</p>
+      </div>
+
+      <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 shadow-neon">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+        </div>
+        <h3 class="text-2xl font-bold text-white mb-1" id="tiempo-promedio">0h</h3>
+        <p class="text-slate-400 text-sm">Tiempo Promedio</p>
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 mb-6">
+      <div class="flex flex-wrap items-center gap-4">
+        <div class="flex-1 min-w-[300px]">
+          <div class="relative">
+            <input type="text" id="searchInput" placeholder="Buscar por ID, vehículo o diagnóstico..." 
+              class="w-full px-4 py-3 pl-12 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:border-primary transition-colors">
+            <svg class="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="filterByStatus('all')" class="filter-btn active px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors text-sm font-medium">
+            Todas
+          </button>
+          <button onclick="filterByStatus('Registrada')" class="filter-btn px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors text-sm font-medium">
+            Registradas
+          </button>
+          <button onclick="filterByStatus('En Proceso')" class="filter-btn px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors text-sm font-medium">
+            En Proceso
+          </button>
+          <button onclick="filterByStatus('Completada')" class="filter-btn px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors text-sm font-medium">
+            Completadas
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDERS LIST -->
+    <div id="ordenesList" class="grid grid-cols-1 gap-4">
+      <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
+        <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg class="w-8 h-8 text-slate-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        </div>
+        <p class="text-slate-400">Cargando órdenes...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL: CREAR ORDEN (WIZARD DE 3 PASOS) -->
+  <div id="createModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-2xl font-bold text-white">Nueva Orden de Trabajo</h3>
+        <button onclick="closeCreateModal()" class="text-slate-400 hover:text-white transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- STEP INDICATOR -->
+      <div class="step-indicator mb-8">
+        <div class="step active" id="step1Indicator">
+          <div class="step-circle">
+            <span class="text-white font-bold">1</span>
+          </div>
+          <p class="text-sm text-slate-300">Información Básica</p>
+        </div>
+        <div class="step" id="step2Indicator">
+          <div class="step-circle">
+            <span class="text-white font-bold">2</span>
+          </div>
+          <p class="text-sm text-slate-300">Servicios</p>
+        </div>
+        <div class="step" id="step3Indicator">
+          <div class="step-circle">
+            <span class="text-white font-bold">3</span>
+          </div>
+          <p class="text-sm text-slate-300">Mecánicos</p>
+        </div>
+      </div>
+
+      <!-- STEP 1: INFORMACIÓN BÁSICA -->
+      <div id="step1" class="step-content">
+        <h4 class="text-xl font-bold text-white mb-6">Paso 1: Información de la Orden</h4>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Vehículo *</label>
+            <select id="idVehiculo" required class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary">
+              <option value="">Seleccione un vehículo</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-2">Fecha de Ingreso *</label>
+              <input type="date" id="fechaIngreso" required class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-2">Estado *</label>
+              <select id="idEstadoOrden" required class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary">
+                <option value="1">Registrada</option>
+                <option value="2">En Proceso</option>
+                <option value="3">Completada</option>
+                <option value="4">Cancelada</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-300 mb-2">Diagnóstico Inicial *</label>
+            <textarea id="diagnosticoInicial" required rows="4" class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary resize-none" placeholder="Describa el problema reportado por el cliente..."></textarea>
+          </div>
+        </div>
+
+        <div class="flex gap-4 mt-6">
+          <button type="button" onclick="closeCreateModal()" class="flex-1 px-6 py-3 bg-white/5 text-white rounded-xl hover:bg-white/10 transition-colors font-semibold">
+            Cancelar
+          </button>
+          <button type="button" onclick="nextStep(2)" class="flex-1 px-6 py-3 bg-gradient-to-r from-primary to-emerald-600 text-white rounded-xl shadow-neonGreen hover:scale-105 transition-transform font-semibold">
+            Siguiente: Servicios →
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 2: SERVICIOS -->
+      <div id="step2" class="step-content hidden">
+        <h4 class="text-xl font-bold text-white mb-6">Paso 2: Seleccionar Servicios</h4>
+        
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-slate-300 mb-2">Agregar Servicio</label>
+          <div class="flex gap-2">
+            <select id="servicioSelect" class="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary">
+              <option value="">Seleccione un servicio</option>
+            </select>
+            <button type="button" onclick="addServicio()" class="px-6 py-3 bg-secondary text-white rounded-xl hover:bg-secondary/80 transition-colors font-semibold">
+              Agregar
+            </button>
+          </div>
+        </div>
+
+        <div id="serviciosList" class="space-y-3 mb-6">
+          <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-4 text-center text-slate-400">
+            No hay servicios agregados. Seleccione servicios arriba.
+          </div>
+        </div>
+
+        <div class="flex gap-4">
+          <button type="button" onclick="previousStep(1)" class="flex-1 px-6 py-3 bg-white/5 text-white rounded-xl hover:bg-white/10 transition-colors font-semibold">
+            ← Anterior
+          </button>
+          <button type="button" onclick="nextStep(3)" id="btnNextToMecanicos" class="flex-1 px-6 py-3 bg-gradient-to-r from-primary to-emerald-600 text-white rounded-xl shadow-neonGreen hover:scale-105 transition-transform font-semibold">
+            Siguiente: Mecánicos →
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP 3: MECÁNICOS -->
+      <div id="step3" class="step-content hidden">
+        <h4 class="text-xl font-bold text-white mb-6">Paso 3: Asignar Mecánicos</h4>
+        
+        <div id="mecanicoAssignmentsList" class="space-y-4 mb-6">
+          <!-- Aquí se cargarán dinámicamente las asignaciones -->
+        </div>
+
+        <div class="flex gap-4">
+          <button type="button" onclick="previousStep(2)" class="flex-1 px-6 py-3 bg-white/5 text-white rounded-xl hover:bg-white/10 transition-colors font-semibold">
+            ← Anterior
+          </button>
+          <button type="button" onclick="crearOrdenCompleta()" id="btnCrearOrden" class="flex-1 px-6 py-3 bg-gradient-to-r from-primary to-emerald-600 text-white rounded-xl shadow-neonGreen hover:scale-105 transition-transform font-semibold">
+            ✓ Crear Orden Completa
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DETALLE ORDEN -->
+  <div id="detailModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50">
+    <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-2xl font-bold text-white">Detalle de Orden</h3>
+        <button onclick="closeDetailModal()" class="text-slate-400 hover:text-white transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div id="orderDetail" class="space-y-6">
+        <!-- Detail content will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:8080/api';
+    
+    let ordenes = [];
+    let ordenesOriginales = [];
+    let vehiculos = [];
+    let servicios = [];
+    let mecanicos = [];
+    let especialidades = [];
+    let estadosOrden = [];
+    let currentFilter = 'all';
+    let currentStep = 1;
+    
+    // Datos temporales del wizard
+    let selectedServicios = [];
+    let mecanicoAssignments = {};
+    
+    // IMPORTANTE: Garantizar que especialidades siempre sea un array
+    function asegurarEspecialidadesArray() {
+      if (!Array.isArray(especialidades)) {
+        console.warn('⚠️ especialidades no es un array, corrigiendo...');
+        especialidades = [];
+      }
+      return especialidades;
+    }
+
+    // Cargar datos iniciales
+    async function loadData() {
+      try {
+        // Cargar órdenes
+        const ordenesRes = await fetch(`${API_BASE}/ordenes`);
+        ordenes = await ordenesRes.json();
+        ordenesOriginales = [...ordenes];
+        
+        // Cargar vehículos
+        const vehiculosRes = await fetch(`${API_BASE}/vehiculos`);
+        vehiculos = await vehiculosRes.json();
+        
+        // Cargar servicios
+        const serviciosRes = await fetch(`${API_BASE}/servicios`);
+        servicios = await serviciosRes.json();
+        
+        // Cargar mecánicos
+        const mecanicosRes = await fetch(`${API_BASE}/mecanicos`);
+        mecanicos = await mecanicosRes.json();
+        
+        // Cargar especialidades (con manejo de errores)
+        try {
+          const especialidadesRes = await fetch(`${API_BASE}/especialidades`);
+          if (especialidadesRes.ok) {
+            especialidades = await especialidadesRes.json();
+            if (!Array.isArray(especialidades)) {
+              console.warn('Especialidades no es un array, usando array vacío');
+              especialidades = [];
+            }
+          } else {
+            console.warn('No se pudieron cargar especialidades, usando array vacío');
+            especialidades = [];
+          }
+        } catch (error) {
+          console.warn('Error al cargar especialidades:', error);
+          especialidades = [];
+          showNotification('⚠️ No se pudieron cargar las especialidades. El módulo funcionará con limitaciones.', 'warning');
+        }
+        
+        populateSelects();
+        updateStats();
+        renderOrdenes(ordenes);
+      } catch (error) {
+        console.error('Error cargando datos:', error);
+        showNotification('Error al cargar las órdenes', 'error');
+      }
+    }
+
+    function populateSelects() {
+      // Vehículos
+      const vehiculoSelect = document.getElementById('idVehiculo');
+      vehiculoSelect.innerHTML = '<option value="">Seleccione un vehículo</option>';
+      vehiculos.forEach(v => {
+        vehiculoSelect.innerHTML += `<option value="${v.idVehiculo}">${v.placa} - ${v.marca} ${v.modelo}</option>`;
+      });
+
+      // Servicios
+      const servicioSelect = document.getElementById('servicioSelect');
+      servicioSelect.innerHTML = '<option value="">Seleccione un servicio</option>';
+      servicios.forEach(s => {
+        servicioSelect.innerHTML += `<option value="${s.idServicio}" data-nombre="${s.nombre}" data-precio="${s.precioBase}">${s.nombre} - $${s.precioBase}</option>`;
+      });
+    }
+
+    function updateStats() {
+      document.getElementById('total-ordenes').textContent = ordenes.length;
+      
+      const enProceso = ordenes.filter(o => o.nombreEstado === 'En Proceso').length;
+      document.getElementById('ordenes-pendientes').textContent = enProceso;
+      
+      const completadas = ordenes.filter(o => o.nombreEstado === 'Completada').length;
+      document.getElementById('ordenes-completadas').textContent = completadas;
+      
+      const tiemposPromedio = ordenes.filter(o => o.fechaSalida).map(o => {
+        const ingreso = new Date(o.fechaIngreso);
+        const salida = new Date(o.fechaSalida);
+        return Math.round((salida - ingreso) / (1000 * 60 * 60));
+      });
+      const promedio = tiemposPromedio.length > 0 
+        ? Math.round(tiemposPromedio.reduce((a, b) => a + b, 0) / tiemposPromedio.length)
+        : 0;
+      document.getElementById('tiempo-promedio').textContent = promedio + 'h';
+    }
+
+    function getStatusColor(estado) {
+      const colors = {
+        'Registrada': 'bg-blue-500/20 text-blue-400 border-blue-500/50',
+        'En Proceso': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50',
+        'Completada': 'bg-green-500/20 text-green-400 border-green-500/50',
+        'Cancelada': 'bg-red-500/20 text-red-400 border-red-500/50'
+      };
+      return colors[estado] || 'bg-gray-500/20 text-gray-400 border-gray-500/50';
+    }
+
+    function getStatusDotColor(estado) {
+      const colors = {
+        'Registrada': 'bg-blue-400',
+        'En Proceso': 'bg-yellow-400',
+        'Completada': 'bg-green-400',
+        'Cancelada': 'bg-red-400'
+      };
+      return colors[estado] || 'bg-gray-400';
+    }
+
+    function renderOrdenes(ordenesToRender) {
+      const container = document.getElementById('ordenesList');
+      
+      if (ordenesToRender.length === 0) {
+        container.innerHTML = `
+          <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
+            <div class="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </div>
+            <p class="text-slate-400">No hay órdenes para mostrar</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = ordenesToRender.map(orden => {
+        const vehiculo = vehiculos.find(v => v.idVehiculo === orden.idVehiculo);
+        const fechaIngreso = new Date(orden.fechaIngreso).toLocaleDateString('es-ES');
+        const fechaSalida = orden.fechaSalida ? new Date(orden.fechaSalida).toLocaleDateString('es-ES') : 'Pendiente';
+        
+        // Botones de acciones según el estado
+        let actionButtons = '';
+        if (orden.nombreEstado === 'Registrada') {
+          actionButtons = `
+            <button onclick="event.stopPropagation(); cambiarEstado(${orden.idOrdenTrabajo}, 2, 'En Proceso')" 
+              class="px-4 py-2 bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 rounded-lg hover:bg-yellow-500/30 transition-all text-sm font-semibold">
+              ▶ Iniciar
+            </button>
+          `;
+        } else if (orden.nombreEstado === 'En Proceso') {
+          actionButtons = `
+            <button onclick="event.stopPropagation(); cambiarEstado(${orden.idOrdenTrabajo}, 3, 'Completada')" 
+              class="px-4 py-2 bg-green-500/20 text-green-400 border border-green-500/50 rounded-lg hover:bg-green-500/30 transition-all text-sm font-semibold">
+              ✓ Completar
+            </button>
+          `;
+        }
+        
+        return `
+          <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-all">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex-1" onclick="showDetail(${orden.idOrdenTrabajo})" style="cursor: pointer;">
+                <div class="flex items-center gap-3 mb-2">
+                  <h3 class="text-xl font-bold text-white">Orden #${orden.idOrdenTrabajo}</h3>
+                  <span class="status-badge ${getStatusColor(orden.nombreEstado)} border">
+                    <span class="status-dot ${getStatusDotColor(orden.nombreEstado)}"></span>
+                    ${orden.nombreEstado}
+                  </span>
+                </div>
+                <p class="text-slate-400 text-sm mb-3">${vehiculo ? `${vehiculo.marca} ${vehiculo.modelo} - ${vehiculo.placa}` : 'Vehículo no encontrado'}</p>
+                <p class="text-slate-300 line-clamp-2">${orden.diagnosticoInicial}</p>
+              </div>
+              <button onclick="showDetail(${orden.idOrdenTrabajo})" class="text-slate-400 hover:text-white transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+            
+            <div class="flex items-center justify-between pt-4 border-t border-white/10">
+              <div class="flex items-center gap-4 text-sm">
+                <div class="flex items-center gap-2 text-slate-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  <span>Ingreso: ${fechaIngreso}</span>
+                </div>
+                <div class="flex items-center gap-2 text-slate-400">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  <span>Salida: ${fechaSalida}</span>
+                </div>
+              </div>
+              ${actionButtons}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function showDetail(idOrden) {
+      const orden = ordenes.find(o => o.idOrdenTrabajo === idOrden);
+      if (!orden) return;
+
+      const vehiculo = vehiculos.find(v => v.idVehiculo === orden.idVehiculo);
+      const fechaIngreso = new Date(orden.fechaIngreso).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      const fechaSalida = orden.fechaSalida ? new Date(orden.fechaSalida).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Pendiente';
+
+      // Generar botones según el estado
+      let estadoActions = '';
+      if (orden.nombreEstado === 'Registrada') {
+        estadoActions = `
+          <button onclick="cambiarEstado(${orden.idOrdenTrabajo}, 2, 'En Proceso')" 
+            class="flex-1 px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-xl shadow-neonOrange hover:scale-105 transition-transform font-semibold">
+            ▶ Iniciar Orden
+          </button>
+        `;
+      } else if (orden.nombreEstado === 'En Proceso') {
+        estadoActions = `
+          <button onclick="cambiarEstado(${orden.idOrdenTrabajo}, 3, 'Completada')" 
+            class="flex-1 px-6 py-3 bg-gradient-to-r from-primary to-emerald-600 text-white rounded-xl shadow-neonGreen hover:scale-105 transition-transform font-semibold">
+            ✓ Marcar Completada
+          </button>
+        `;
+      } else if (orden.nombreEstado === 'Completada') {
+        estadoActions = `
+          <div class="flex-1 px-6 py-3 bg-green-500/10 border-2 border-green-500/50 text-green-400 rounded-xl text-center font-semibold">
+            ✓ Orden Completada
+          </div>
+        `;
+      }
+
+      document.getElementById('orderDetail').innerHTML = `
+        <div class="space-y-6">
+          <div class="flex items-center justify-between">
+            <h4 class="text-2xl font-bold text-white">Orden #${orden.idOrdenTrabajo}</h4>
+            <span class="status-badge ${getStatusColor(orden.nombreEstado)} border">
+              <span class="status-dot ${getStatusDotColor(orden.nombreEstado)}"></span>
+              ${orden.nombreEstado}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-4">
+              <p class="text-slate-400 text-sm mb-1">Vehículo</p>
+              <p class="text-white font-semibold">${vehiculo ? `${vehiculo.marca} ${vehiculo.modelo}` : 'N/A'}</p>
+              <p class="text-slate-300 text-sm">${vehiculo ? vehiculo.placa : 'N/A'}</p>
+            </div>
+
+            <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-4">
+              <p class="text-slate-400 text-sm mb-1">Cliente</p>
+              <p class="text-white font-semibold">ID: ${vehiculo ? vehiculo.idCliente : 'N/A'}</p>
+            </div>
+
+            <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-4">
+              <p class="text-slate-400 text-sm mb-1">Fecha de Ingreso</p>
+              <p class="text-white font-semibold">${fechaIngreso}</p>
+            </div>
+
+            <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-4">
+              <p class="text-slate-400 text-sm mb-1">Fecha de Salida</p>
+              <p class="text-white font-semibold">${fechaSalida}</p>
+            </div>
+          </div>
+
+          <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-4">
+            <p class="text-slate-400 text-sm mb-2">Diagnóstico Inicial</p>
+            <p class="text-white">${orden.diagnosticoInicial}</p>
+          </div>
+
+          <div class="flex gap-4">
+            <button onclick="closeDetailModal()" class="flex-1 px-6 py-3 bg-white/5 text-white rounded-xl hover:bg-white/10 transition-colors font-semibold">
+              Cerrar
+            </button>
+            ${estadoActions}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('detailModal').classList.remove('hidden');
+      document.getElementById('detailModal').classList.add('flex');
+    }
+
+    /**
+     * Cambia el estado de una orden de trabajo
+     */
+    async function cambiarEstado(idOrden, nuevoEstadoId, nombreEstado) {
+      if (!confirm(`¿Está seguro de cambiar el estado a "${nombreEstado}"?`)) {
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/ordenes/${idOrden}/estado`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            idEstadoOrden: nuevoEstadoId
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Error al actualizar el estado');
+        }
+
+        const resultado = await response.json();
+        showNotification(`✓ ${resultado.mensaje}`, 'success');
+        
+        // Cerrar modal si está abierto
+        closeDetailModal();
+        
+        // Recargar datos
+        await loadData();
+        
+      } catch (error) {
+        console.error('Error al cambiar estado:', error);
+        showNotification(`Error: ${error.message}`, 'error');
+      }
+    }
+
+    function filterByStatus(status) {
+      currentFilter = status;
+      
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active', 'bg-primary/20', 'text-primary', 'border', 'border-primary/50');
+      });
+      event.target.classList.add('active', 'bg-primary/20', 'text-primary', 'border', 'border-primary/50');
+
+      if (status === 'all') {
+        ordenes = [...ordenesOriginales];
+      } else {
+        ordenes = ordenesOriginales.filter(o => o.nombreEstado === status);
+      }
+
+      updateStats();
+      renderOrdenes(ordenes);
+    }
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const filtered = ordenesOriginales.filter(orden => {
+        const vehiculo = vehiculos.find(v => v.idVehiculo === orden.idVehiculo);
+        const vehiculoInfo = vehiculo ? `${vehiculo.marca} ${vehiculo.modelo} ${vehiculo.placa}`.toLowerCase() : '';
+        
+        return orden.idOrdenTrabajo.toString().includes(searchTerm) ||
+               orden.diagnosticoInicial.toLowerCase().includes(searchTerm) ||
+               vehiculoInfo.includes(searchTerm);
+      });
+
+      ordenes = currentFilter === 'all' ? filtered : filtered.filter(o => o.nombreEstado === currentFilter);
+      renderOrdenes(ordenes);
+    });
+
+    // ===== WIZARD FUNCTIONS =====
+    
+    function openCreateModal() {
+      document.getElementById('createModal').classList.remove('hidden');
+      document.getElementById('createModal').classList.add('flex');
+      document.getElementById('fechaIngreso').valueAsDate = new Date();
+      resetWizard();
+    }
+
+    function closeCreateModal() {
+      document.getElementById('createModal').classList.add('hidden');
+      document.getElementById('createModal').classList.remove('flex');
+      resetWizard();
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+      document.getElementById('detailModal').classList.remove('flex');
+    }
+
+    function resetWizard() {
+      currentStep = 1;
+      selectedServicios = [];
+      mecanicoAssignments = {};
+      showStep(1);
+      
+      document.getElementById('idVehiculo').value = '';
+      document.getElementById('fechaIngreso').valueAsDate = new Date();
+      document.getElementById('diagnosticoInicial').value = '';
+      document.getElementById('idEstadoOrden').value = '1';
+    }
+
+    function showStep(step) {
+      document.querySelectorAll('.step-content').forEach(s => s.classList.add('hidden'));
+      document.getElementById(`step${step}`).classList.remove('hidden');
+      
+      document.querySelectorAll('.step').forEach((s, i) => {
+        s.classList.remove('active', 'completed');
+        if (i + 1 < step) s.classList.add('completed');
+        if (i + 1 === step) s.classList.add('active');
+      });
+      
+      currentStep = step;
+    }
+
+    function nextStep(step) {
+      if (step === 2) {
+        if (!validateStep1()) return;
+      } else if (step === 3) {
+        if (selectedServicios.length === 0) {
+          showNotification('Debe agregar al menos un servicio', 'warning');
+          return;
+        }
+        renderMecanicoAssignments();
+      }
+      showStep(step);
+    }
+
+    function previousStep(step) {
+      showStep(step);
+    }
+
+    function validateStep1() {
+      const vehiculo = document.getElementById('idVehiculo').value;
+      const fecha = document.getElementById('fechaIngreso').value;
+      const diagnostico = document.getElementById('diagnosticoInicial').value;
+      
+      if (!vehiculo || !fecha || !diagnostico) {
+        showNotification('Complete todos los campos obligatorios', 'warning');
+        return false;
+      }
+      return true;
+    }
+
+    function addServicio() {
+      const select = document.getElementById('servicioSelect');
+      const selectedOption = select.options[select.selectedIndex];
+      
+      if (!selectedOption.value) {
+        showNotification('Seleccione un servicio', 'warning');
+        return;
+      }
+      
+      const servicioId = parseInt(selectedOption.value);
+      if (selectedServicios.find(s => s.id === servicioId)) {
+        showNotification('Este servicio ya fue agregado', 'warning');
+        return;
+      }
+      
+      selectedServicios.push({
+        id: servicioId,
+        nombre: selectedOption.dataset.nombre,
+        precio: parseFloat(selectedOption.dataset.precio)
+      });
+      
+      renderServiciosList();
+      select.value = '';
+    }
+
+    function removeServicio(servicioId) {
+      selectedServicios = selectedServicios.filter(s => s.id !== servicioId);
+      delete mecanicoAssignments[servicioId];
+      renderServiciosList();
+    }
+
+    function renderServiciosList() {
+      const container = document.getElementById('serviciosList');
+      
+      if (selectedServicios.length === 0) {
+        container.innerHTML = `
+          <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-4 text-center text-slate-400">
+            No hay servicios agregados. Seleccione servicios arriba.
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = selectedServicios.map(s => `
+        <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p class="text-white font-semibold">${s.nombre}</p>
+            <p class="text-slate-400 text-sm">Precio: $${s.precio.toFixed(2)}</p>
+          </div>
+          <button onclick="removeServicio(${s.id})" class="text-red-400 hover:text-red-300 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function renderMecanicoAssignments() {
+      const container = document.getElementById('mecanicoAssignmentsList');
+      
+      asegurarEspecialidadesArray();
+      
+      if (!Array.isArray(mecanicos) || mecanicos.length === 0) {
+        container.innerHTML = `
+          <div class="backdrop-blur-xl bg-red-500/10 border border-red-500/30 rounded-xl p-6 text-center">
+            <svg class="w-12 h-12 text-red-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <p class="text-red-400 font-semibold mb-2">No hay mecánicos disponibles</p>
+            <p class="text-slate-400 text-sm">Debe registrar mecánicos antes de crear órdenes</p>
+            <button onclick="previousStep(2)" class="mt-4 px-6 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors">
+              ← Volver a Servicios
+            </button>
+          </div>
+        `;
+        return;
+      }
+      
+      const tieneEspecialidades = especialidades.length > 0;
+      
+      let mecanicoOptions = '<option value="">Seleccione mecánico</option>';
+      try {
+        mecanicoOptions += mecanicos.map(m => 
+          `<option value="${m.idMecanico}">${m.nombre} ${m.apellido}</option>`
+        ).join('');
+      } catch (error) {
+        console.error('Error generando opciones de mecánicos:', error);
+        mecanicoOptions = '<option value="">Error al cargar mecánicos</option>';
+      }
+      
+      let especialidadOptions = '';
+      if (tieneEspecialidades) {
+        try {
+          especialidadOptions = '<option value="">Seleccione especialidad</option>' + 
+            especialidades.map(e => 
+              `<option value="${e.idEspecialidad}">${e.nombre}</option>`
+            ).join('');
+        } catch (error) {
+          console.error('Error generando opciones de especialidades:', error);
+          especialidadOptions = '<option value="1">General (por defecto)</option>';
+        }
+      } else {
+        especialidadOptions = '<option value="1" selected>General (por defecto)</option>';
+      }
+      
+      container.innerHTML = selectedServicios.map(s => `
+        <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-xl p-6">
+          <h5 class="text-lg font-bold text-white mb-4">
+            <span class="inline-block w-8 h-8 bg-primary/20 rounded-lg text-center leading-8 mr-2">🔧</span>
+            ${s.nombre}
+          </h5>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-2">
+                <span class="text-red-400">*</span> Mecánico Asignado
+              </label>
+              <select id="mecanico_${s.id}" required
+                class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary transition-colors">
+                ${mecanicoOptions}
+              </select>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-2">
+                ${tieneEspecialidades ? '<span class="text-red-400">*</span>' : ''} Especialidad
+                ${!tieneEspecialidades ? '<span class="text-xs text-yellow-400">(Automática)</span>' : ''}
+              </label>
+              <select id="especialidad_${s.id}" 
+                ${!tieneEspecialidades ? 'disabled' : 'required'}
+                class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-primary transition-colors ${!tieneEspecialidades ? 'opacity-50 cursor-not-allowed' : ''}">
+                ${especialidadOptions}
+              </select>
+            </div>
+          </div>
+          
+          <div class="mt-4">
+            <label class="block text-sm font-medium text-slate-300 mb-2">
+              Rol en el Servicio <span class="text-xs text-slate-500">(Opcional)</span>
+            </label>
+            <input 
+              type="text" 
+              id="rol_${s.id}" 
+              placeholder="Ej: Técnico principal, Asistente, Supervisor..." 
+              class="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-primary transition-colors">
+          </div>
+        </div>
+      `).join('');
+      
+      if (!tieneEspecialidades) {
+        container.innerHTML += `
+          <div class="backdrop-blur-xl bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+              </svg>
+              <div class="flex-1">
+                <p class="text-yellow-400 font-semibold text-sm">⚠️ Sin especialidades en el sistema</p>
+                <p class="text-slate-400 text-xs mt-1">
+                  Se asignará automáticamente "General" como especialidad por defecto.
+                </p>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    async function crearOrdenCompleta() {
+      const btnCrear = document.getElementById('btnCrearOrden');
+      btnCrear.disabled = true;
+      btnCrear.innerHTML = '<svg class="animate-spin h-5 w-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>';
+      
+      try {
+        asegurarEspecialidadesArray();
+        
+        const asignacionesValidas = [];
+        for (const servicio of selectedServicios) {
+          const mecanicoId = document.getElementById(`mecanico_${servicio.id}`).value;
+          if (!mecanicoId) {
+            showNotification(`⚠️ Debe asignar un mecánico al servicio: ${servicio.nombre}`, 'warning');
+            btnCrear.disabled = false;
+            btnCrear.innerHTML = '✓ Crear Orden Completa';
+            return;
+          }
+          
+          let especialidadId = document.getElementById(`especialidad_${servicio.id}`).value;
+          if (!especialidadId || especialidadId === '') {
+            especialidadId = '1';
+          }
+          
+          const rol = document.getElementById(`rol_${servicio.id}`).value || 'Técnico';
+          
+          asignacionesValidas.push({
+            servicio,
+            mecanicoId: parseInt(mecanicoId),
+            especialidadId: parseInt(especialidadId),
+            rol
+          });
+        }
+        
+        const ordenTrabajo = {
+          idVehiculo: parseInt(document.getElementById('idVehiculo').value),
+          fechaIngreso: document.getElementById('fechaIngreso').value,
+          fechaSalida: null,
+          diagnosticoInicial: document.getElementById('diagnosticoInicial').value,
+          idEstadoOrden: parseInt(document.getElementById('idEstadoOrden').value)
+        };
+        
+        const ordenResponse = await fetch(`${API_BASE}/ordenes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(ordenTrabajo)
+        });
+        
+        if (!ordenResponse.ok) {
+          const errorText = await ordenResponse.text();
+          throw new Error(`Error al crear la orden: ${errorText}`);
+        }
+        
+        const ordenCreada = await ordenResponse.json();
+        const idOrdenTrabajo = ordenCreada.idOrdenTrabajo;
+        
+        let serviciosCreados = 0;
+        let mecanicosAsignados = 0;
+        
+        for (const asignacion of asignacionesValidas) {
+          try {
+            const ordenServicio = {
+              idOrdenTrabajo: idOrdenTrabajo,
+              idServicio: asignacion.servicio.id,
+              estado: 'Pendiente',
+              precioFinal: asignacion.servicio.precio
+            };
+            
+            const servicioResponse = await fetch(`${API_BASE}/orden-servicio`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(ordenServicio)
+            });
+            
+            if (!servicioResponse.ok) {
+              continue;
+            }
+            
+            serviciosCreados++;
+            
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+            const serviciosListResponse = await fetch(`${API_BASE}/orden-servicio`);
+            const serviciosList = await serviciosListResponse.json();
+            const servicioCreado = serviciosList[serviciosList.length - 1];
+            
+            if (!servicioCreado || !servicioCreado.idOrdenServicio) {
+              continue;
+            }
+            
+            const asignacionMecanico = {
+              idOrdenServicio: servicioCreado.idOrdenServicio,
+              idMecanico: asignacion.mecanicoId,
+              idEspecialidad: asignacion.especialidadId,
+              rolEnServicio: asignacion.rol
+            };
+            
+            const mecanicoResponse = await fetch(`${API_BASE}/orden-servicio-mecanico`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(asignacionMecanico)
+            });
+            
+            if (mecanicoResponse.ok) {
+              mecanicosAsignados++;
+            }
+            
+          } catch (error) {
+            console.error(`Error procesando servicio:`, error);
+          }
+        }
+        
+        if (serviciosCreados === 0) {
+          showNotification('⚠️ Orden creada pero sin servicios. Agregue servicios manualmente.', 'warning');
+        } else if (mecanicosAsignados < serviciosCreados) {
+          showNotification(`✓ Orden creada con ${serviciosCreados} servicios. ${serviciosCreados - mecanicosAsignados} sin mecánico asignado.`, 'success');
+        } else {
+          showNotification(`✓ Orden #${idOrdenTrabajo} creada exitosamente con ${serviciosCreados} servicios y ${mecanicosAsignados} mecánicos`, 'success');
+        }
+        
+        closeCreateModal();
+        await loadData();
+        
+      } catch (error) {
+        console.error('Error completo:', error);
+        showNotification(`Error: ${error.message}`, 'error');
+      } finally {
+        btnCrear.disabled = false;
+        btnCrear.innerHTML = '✓ Crear Orden Completa';
+      }
+    }
+
+    function showNotification(message, type) {
+      const colors = {
+        success: 'bg-green-500',
+        error: 'bg-red-500',
+        warning: 'bg-yellow-500',
+        info: 'bg-blue-500'
+      };
+      
+      const notification = document.createElement('div');
+      notification.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-4 rounded-xl shadow-lg z-[100] transform transition-all duration-300`;
+      notification.textContent = message;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+
+    function logout() {
+      if (confirm('¿Seguro que deseas cerrar sesión?')) {
+        window.location.href = '../../auth/login.html';
+      }
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

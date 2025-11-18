@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>MotorPlus · Mecánicos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@2.0.3"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { primary: "#22c55e", secondary: "#0ea5e9", accent: "#f97316", deep: "#0f172a", amber: "#f59e0b" },
+          boxShadow: { neon: "0 0 25px rgba(56, 189, 248, 0.8)", neonGreen: "0 0 25px rgba(34, 197, 94, 0.7)", neonAmber: "0 0 25px rgba(245, 158, 11, 0.7)" },
+        },
+      },
+    };
+  </script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #020617, #0f172a, #1e3a8a, #0f766e, #4c1d95);
+      background-size: 350% 350%;
+      animation: gradientMove 18s ease infinite;
+    }
+    @keyframes gradientMove {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- SIDEBAR -->
+  <aside class="fixed left-0 top-0 h-screen w-64 backdrop-blur-xl bg-white/5 border-r border-white/10 p-6 z-50">
+    <div class="flex items-center gap-3 mb-8">
+        <div class="w-10 h-10 bg-gradient-to-br from-secondary to-primary rounded-lg shadow-neonGreen flex items-center justify-center overflow-hidden">
+            <img
+                src="../../static/img/IMG_1332.jpeg"
+                alt="Logo MotorPlus"
+                class="w-full h-full object-cover"
+            />
+        </div>
+        <h1 class="text-xl font-bold text-white">MotorPlus</h1>
+    </div>
+    <nav class="space-y-2">
+      <a href="../../dashboard/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Dashboard
+      </a>
+      <a href="../clientes/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+        Clientes
+      </a>
+      <a href="../vehiculos/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+        Vehículos
+      </a>
+      <a href="../servicios/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Servicios
+      </a>
+      <a href="../repuestos/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        Repuestos
+      </a>
+      <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-amber-500/20 to-yellow-600/20 text-white border border-amber-400/20 shadow-neonAmber">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        Mecánicos
+      </a>
+      <a href="../ordenes/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+        Órdenes
+      </a>
+      <a href="../facturas/index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:bg-white/10 transition-all">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+        Facturas
+      </a>
+    </nav>
+
+    <div class="absolute bottom-6 left-6 right-6">
+      <button onclick="logout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-rose-400 hover:bg-rose-500/10 transition-all border border-rose-500/20">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        Cerrar Sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="ml-64 p-8">
+    <header class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-3xl font-bold text-white mb-2">Equipo de Mecánicos</h2>
+        <p class="text-slate-400">Administra tu personal técnico</p>
+      </div>
+      <button onclick="abrirModal()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 text-white font-semibold shadow-neonAmber hover:scale-105 transition-transform">
+        <span class="flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+          Nuevo Mecánico
+        </span>
+      </button>
+    </header>
+
+    <!-- BUSCAR -->
+    <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-4 mb-6 shadow-neon">
+      <input type="text" id="buscar" placeholder="Buscar mecánico por nombre o apellido..." 
+             class="w-full bg-transparent text-white placeholder-slate-400 outline-none"
+             oninput="filtrarMecanicos(this.value)">
+    </div>
+
+    <!-- TABLA MECÁNICOS -->
+    <div class="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl shadow-neon overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-white/5 border-b border-white/10">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">ID</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Nombre Completo</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Teléfono</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Experiencia</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-slate-300 uppercase tracking-wider">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-mecanicos" class="divide-y divide-white/5">
+            <tr>
+              <td colspan="5" class="px-6 py-8 text-center text-slate-400">Cargando mecánicos...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL CREAR/EDITAR -->
+  <div id="modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-6">
+    <div class="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-neon max-w-2xl w-full p-8 animate-float">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-2xl font-bold text-white" id="modal-titulo">Nuevo Mecánico</h3>
+        <button onclick="cerrarModal()" class="text-slate-400 hover:text-white transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <form id="form-mecanico" onsubmit="guardarMecanico(event)" class="space-y-4">
+        <input type="hidden" id="mecanico-id">
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-slate-300 mb-2">Nombre *</label>
+            <input id="nombre" required placeholder="Juan"
+                   class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-amber-500 transition-all">
+          </div>
+          <div>
+            <label class="block text-sm text-slate-300 mb-2">Apellido *</label>
+            <input id="apellido" required placeholder="Pérez"
+                   class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-amber-500 transition-all">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-slate-300 mb-2">Teléfono</label>
+            <input id="telefono" placeholder="3001234567"
+                   class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-amber-500 transition-all">
+          </div>
+          <div>
+            <label class="block text-sm text-slate-300 mb-2">Años de Experiencia *</label>
+            <input id="experienciaAnios" type="number" required min="0" max="99" placeholder="5"
+                   class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:ring-amber-500 transition-all">
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-4">
+          <button type="submit" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-600 text-white font-semibold shadow-neonAmber hover:scale-105 transition-transform">
+            Guardar Mecánico
+          </button>
+          <button type="button" onclick="cerrarModal()" class="px-6 py-3 rounded-xl border border-white/20 text-slate-300 hover:bg-white/5 transition-all">
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let mecanicos = [];
+    
+    async function cargarMecanicos() {
+      try {
+        const res = await fetch('http://localhost:8080/api/mecanicos');
+        mecanicos = await res.json();
+        renderMecanicos(mecanicos);
+      } catch (e) {
+        document.getElementById('tbody-mecanicos').innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-rose-400">Error al cargar mecánicos</td></tr>';
+      }
+    }
+
+    function obtenerNivelExperiencia(anios) {
+      if (anios < 2) return { clase: 'bg-blue-500/20 text-blue-400', texto: 'Junior', icon: '🌱' };
+      if (anios < 5) return { clase: 'bg-cyan-500/20 text-cyan-400', texto: 'Semi-Senior', icon: '⚡' };
+      if (anios < 10) return { clase: 'bg-amber-500/20 text-amber-400', texto: 'Senior', icon: '⭐' };
+      return { clase: 'bg-emerald-500/20 text-emerald-400', texto: 'Experto', icon: '👑' };
+    }
+
+    function renderMecanicos(data) {
+      const tbody = document.getElementById('tbody-mecanicos');
+      if (data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-slate-400">No hay mecánicos registrados</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.map(m => {
+        const nivel = obtenerNivelExperiencia(m.experienciaAnios);
+        
+        return `
+        <tr class="hover:bg-white/5 transition-colors">
+          <td class="px-6 py-4 text-white font-mono">${m.idMecanico || ''}</td>
+          <td class="px-6 py-4 text-white font-medium">${m.nombre || ''} ${m.apellido || ''}</td>
+          <td class="px-6 py-4 text-slate-300">${m.telefono || '-'}</td>
+          <td class="px-6 py-4">
+            <span class="px-2 py-1 rounded-lg ${nivel.clase} text-xs font-semibold">
+              ${nivel.icon} ${m.experienciaAnios} años - ${nivel.texto}
+            </span>
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-2">
+              <button onclick='verMecanico(${JSON.stringify(m).replace(/'/g, "&#39;")})' class="p-2 rounded-lg bg-secondary/20 text-secondary hover:bg-secondary/30 transition-colors" title="Ver/Editar">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+              <button onclick="eliminarMecanico(${m.idMecanico})" class="p-2 rounded-lg bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 transition-colors" title="Eliminar">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `}).join('');
+    }
+
+    function filtrarMecanicos(texto) {
+      const filtrados = mecanicos.filter(m => 
+        (m.nombre && m.nombre.toLowerCase().includes(texto.toLowerCase())) ||
+        (m.apellido && m.apellido.toLowerCase().includes(texto.toLowerCase()))
+      );
+      renderMecanicos(filtrados);
+    }
+
+    function abrirModal() {
+      document.getElementById('modal-titulo').textContent = 'Nuevo Mecánico';
+      document.getElementById('form-mecanico').reset();
+      document.getElementById('mecanico-id').value = '';
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+    }
+
+    function cerrarModal() {
+      document.getElementById('modal').classList.add('hidden');
+      document.getElementById('modal').classList.remove('flex');
+    }
+
+    function verMecanico(mecanico) {
+      document.getElementById('modal-titulo').textContent = 'Editar Mecánico';
+      document.getElementById('mecanico-id').value = mecanico.idMecanico;
+      document.getElementById('nombre').value = mecanico.nombre;
+      document.getElementById('apellido').value = mecanico.apellido;
+      document.getElementById('telefono').value = mecanico.telefono || '';
+      document.getElementById('experienciaAnios').value = mecanico.experienciaAnios;
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+    }
+
+    async function guardarMecanico(e) {
+      e.preventDefault();
+      
+      const mecanico = {
+        nombre: document.getElementById('nombre').value,
+        apellido: document.getElementById('apellido').value,
+        telefono: document.getElementById('telefono').value,
+        experienciaAnios: parseInt(document.getElementById('experienciaAnios').value)
+      };
+
+      try {
+        const res = await fetch('http://localhost:8080/api/mecanicos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(mecanico)
+        });
+
+        if (res.ok) {
+          cerrarModal();
+          cargarMecanicos();
+          alert('Mecánico guardado correctamente');
+        } else {
+          alert('Error al guardar mecánico');
+        }
+      } catch (e) {
+        alert('Error de conexión');
+      }
+    }
+
+    async function eliminarMecanico(id) {
+      if (!confirm('¿Estás seguro de eliminar este mecánico y todas sus relaciones?')) return;
+
+      try {
+        const res = await fetch(`http://localhost:8080/api/mecanicos/completo/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          cargarMecanicos();
+          alert('Mecánico eliminado correctamente');
+        } else {
+          alert('No se pudo eliminar el mecánico');
+        }
+      } catch (e) {
+        alert('Error al eliminar mecánico');
+      }
+    }
+
+    function logout() {
+      if (confirm('¿Seguro que deseas cerrar sesión?')) {
+        window.location.href = '../../auth/login.html';
+      }
+    }
+
+    // Cargar mecánicos al iniciar
+    cargarMecanicos();
+  </script>
+
+</body>
+</html>
